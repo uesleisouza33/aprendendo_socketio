@@ -6,9 +6,9 @@
   <link rel="stylesheet" href="/output.css">
   <title>Sesi chats</title>
 </head>
-<bod class="bg-gray-100 w-full">
-
+<body class="bg-gray-100 w-full">
   <div class="max-w-md mx-auto flex flex-col gap-4 bg-white p-6 rounded shadow">
+    <a href="/login"><button id="login" class="bg-blue-500 text-white">Login</button></a>
     <h1 class="text-2xl font-bold text-center mb-4">Chat em tempo real</h1>
   
     <!-- Lista de mensagens -->
@@ -20,7 +20,6 @@
       <button id="sendBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 cursor-pointer">Enviar</button>
     </div>
   </div>
-  
   <!-- Conectar com socket.io -->
   <script src="/socket.io/socket.io.js"></script>
   <!-- Tratar front-end -->

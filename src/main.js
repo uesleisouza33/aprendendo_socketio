@@ -1,5 +1,6 @@
 // Conectar com o socket.io
-const socket = io("https://sesichat.onrender.com");
+// const socket = io("https://sesichat.onrender.com");
+const socket = io();
 
 const input = document.getElementById('input');
 const send = document.getElementById('sendBtn');
