@@ -1,42 +1,117 @@
-// Conectar com o socket.io
-// const socket = io("https://sesichat.onrender.com");
+// Conectar socket
 const socket = io();
 
+// Variável para armazenar o username atual
+let username = null;
+
+// Pegar elementos
 const input = document.getElementById('input');
 const send = document.getElementById('sendBtn');
 const messages = document.getElementById('messages');
 
-// função para enviar mensagem
-function enviarMensagem() {
-    //Pegar value do input
-    const msg = input.value.trim();
-    // Se a mensagem nao estiver vazia, emitir a mensagem para o server e depois limpar o espaço do input
-    if (msg != '') {
-        socket.emit('mensagem', msg);
-        input.value = ''
-    }
+const authArea = document.getElementById("authArea"); // div login/registro
+const userArea = document.getElementById("userArea"); // div com saudação + logout
+const saudacao = document.getElementById("saudacao");
+const logoutBtn = document.getElementById("logoutBtn");
+
+// Inicialmente, input e botão estão desativados
+if (input) input.disabled = true;
+if (send) send.disabled = true;
+
+// Recupera username do localStorage, mas só desbloqueia após confirmação do servidor
+const savedUsername = localStorage.getItem("username");
+if (savedUsername) {
+  socket.emit("setUsername", savedUsername);
 }
 
+// Recebe confirmação do servidor
+socket.on('usernameConfirmed', (name) => {
+  username = name;
+  localStorage.setItem('username', username);
 
-// Enviar mensagem com click do mouse
-send.addEventListener('click', enviarMensagem);
+  // Desbloqueia input e botão
+  if (input) input.disabled = false;
+  if (send) send.disabled = false;
 
-// Enviar mensagem utilizando ENTER
-input.addEventListener('keydown', (e) =>{
-    if (e.code === "Enter") enviarMensagem();
+  // Ajusta interface
+  if (authArea && userArea && saudacao) {
+    authArea.classList.add("hidden");
+    userArea.classList.remove("hidden");
+    saudacao.textContent = `Olá, ${username}`;
+  }
 });
 
-// Receber as mensagens vindas do servidor
-socket.on('mensagem', (msg) =>{
-    //Cria um li
-    const li = document.createElement('li');
-    // Li recebe o texto
-    li.textContent = msg;
-    // Classe para dar um margin bottom de 2rem no li
-    li.className = 'mb-2';
-    // Torna li um elemento filho de messages(ul)
-    messages.appendChild(li);
+// Função para enviar mensagem
+function enviarMensagem() {
+  const msg = input.value.trim();
+  if (msg && username) {
+    socket.emit('mensagem', msg);
+    input.value = '';
+  }
+}
 
-    // Vai para ultima mensagem rolando automaticamente
-    messages.scrollTop = messages.scrollHeight;
-})
+// Clique no botão enviar
+send?.addEventListener('click', enviarMensagem);
+
+// Enter para enviar
+input?.addEventListener('keydown', (e) => {
+  if (e.code === "Enter") enviarMensagem();
+});
+
+// Receber mensagens
+socket.on('mensagem', (msg) => {
+  const li = document.createElement('li');
+
+  if (msg.user === 'Sistema') {
+    li.textContent = `${msg.text}`;
+    li.classList.add('mb-2', 'text-yellow-600', 'font-semibold', 'text-center');
+
+  } else if (msg.user === username) {
+    // Mensagem sua → azul
+    li.textContent = `Você: ${msg.text}`;
+    li.classList.add(
+      'mb-2',
+      'px-3',
+      'py-2',
+      'rounded-lg',
+      'bg-blue-500',
+      'text-white',
+      'max-w-xs',
+      'self-end'
+    );
+
+  } else {
+    // Mensagem de outro usuário → cinza
+    li.textContent = `${msg.user}: ${msg.text}`;
+    li.classList.add(
+      'mb-2',
+      'px-3',
+      'py-2',
+      'rounded-lg',
+      'bg-gray-200',
+      'text-gray-800',
+      'max-w-xs',
+      'self-start'
+    );
+  }
+
+  messages.appendChild(li);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+// Logout
+logoutBtn?.addEventListener("click", () => {
+  if (username) {
+    socket.emit("logout");
+    username = null;
+  }
+  localStorage.removeItem("username");
+
+  // Volta para tela de login
+  if (authArea && userArea) {
+    authArea.classList.remove("hidden");
+    userArea.classList.add("hidden");
+  }
+
+  messages.innerHTML = ''; // limpa chat
+});
