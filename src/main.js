@@ -1,5 +1,5 @@
 // Conectar com o socket.io
-const socket = io();
+const socket = io("https://sesichat.onrender.com");
 
 const input = document.getElementById('input');
 const send = document.getElementById('sendBtn');
@@ -21,7 +21,7 @@ function enviarMensagem() {
 send.addEventListener('click', enviarMensagem);
 
 // Enviar mensagem utilizando ENTER
-send.addEventListener('keydown', (e) =>{
+input.addEventListener('keydown', (e) =>{
     if (e.code === "Enter") enviarMensagem();
 });
 
