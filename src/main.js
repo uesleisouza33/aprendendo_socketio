@@ -1,5 +1,5 @@
 // Conectar socket
-const socket = io();
+const socket = io("https://sesichat.onrender.com");
 
 // Variável para armazenar o username atual
 let username = null;
