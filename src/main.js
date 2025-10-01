@@ -1,6 +1,6 @@
 // Conectar socket
-// const socket = io("https://sesichat.onrender.com");
-const socket = io();
+const socket = io("https://sesichat.onrender.com");
+// const socket = io();
 
 // Estado global
 let username = null;
